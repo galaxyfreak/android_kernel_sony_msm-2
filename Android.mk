@@ -172,7 +172,9 @@ kernelconfig: $(KERNEL_OUT) $(KERNEL_CONFIG)
 	cp $(KERNEL_OUT)/defconfig $(KERNEL_SRC)/arch/$(KERNEL_ARCH)/configs/$(KERNEL_DEFCONFIG)
 
 ## Install it
-INSTALLED_KERNEL_TARGET ?= $(PRODUCT_OUT)/kernel
+.PHONY: $(PRODUCT_OUT)/kernel
+$(PRODUCT_OUT)/kernel: $(KERNEL_BIN)
+	cp $(KERNEL_BIN) $(PRODUCT_OUT)/kernel
 
 DTB_DIR := $(KERNEL_OUT)/arch/arm/boot
 DTB_FILES := $(shell find -L $(DTB_DIR) -name "*.dtb")
@@ -181,13 +183,6 @@ DTBS := $(foreach dtb,$(DTB_FILES),$(DTB_OUT_DIR)/$(notdir $(dtb)))
 $(DTB_OUT_DIR)/%.dtb : $(DTB_DIR)/%.dtb | $(ACP)
 	$(hide) @mkdir -p $(DTB_OUT_DIR)
 	$(transform-prebuilt-to-target)
-
-file := $(INSTALLED_KERNEL_TARGET)
-ALL_PREBUILT += $(file)
-$(file) : $(KERNEL_BIN) $(DTBS) | $(ACP)
-	$(transform-prebuilt-to-target)
-
-ALL_PREBUILT += $(INSTALLED_KERNEL_TARGET)
 
 endif # Sony AOSP devices
 endif # BUILD_KERNEL
